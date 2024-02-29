@@ -7,8 +7,8 @@ from users.services.create_new_user import create_user_account
 
 
 user_router = APIRouter(
-    prefix="/users",
-    tags=["Users"],
+    prefix="/api/v1",
+    tags=["User API"],
     responses={404: {"description": "Not found"}},
 )
 
