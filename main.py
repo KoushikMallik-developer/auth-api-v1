@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 from core.db import Base, engine
 from users.routes import user_router
 
-app = FastAPI()
+app = FastAPI(debug=True, title="Auth API V1", version="0.1.0")
 app.include_router(router=user_router)
 Base.metadata.create_all(bind=engine)
 
