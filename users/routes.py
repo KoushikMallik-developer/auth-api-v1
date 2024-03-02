@@ -7,11 +7,14 @@ from core.db import get_db
 from users.definitions import (
     USER_REGISTER_SUCCESS_MESSAGE,
     RESEND_EMAIL_SUCCESS_MESSAGE,
+    EMAIL_VERIFICATION_SUCCESS_MESSAGE,
 )
 from users.schemas.create_user_request import CreateUserRequest
 from users.schemas.resend_verification_code import ResendVerificationCodeRequest
+from users.schemas.verify_user import VerifyNewUserRequest
 from users.services.create_new_user import CreateNewUserService
 from users.services.resend_verification_code import ResendVerificationCodeService
+from users.services.verify_user import VerifyNewUserService
 from users.utils.types.request_and_response_types.response_types.base_response_type import (
     BaseResponse,
 )
@@ -66,6 +69,33 @@ async def resend_verification_code(
         )
         response_content = BaseResponse(
             successMessage=RESEND_EMAIL_SUCCESS_MESSAGE, status_code=200
+        )
+        return JSONResponse(
+            content=response_content.model_dump(),
+            status_code=response_content.status_code,
+        )
+    except APIBaseException as e:
+        response_content = BaseResponse(
+            errorMessage=f"{e.name}: {e.detail}", status_code=e.status_code
+        )
+        return JSONResponse(
+            content=response_content.model_dump(),
+            status_code=response_content.status_code,
+        )
+
+
+@user_router.post("/verify-user", response_model=BaseResponse, status_code=200)
+async def verify_user_account(
+    background_tasks: BackgroundTasks,
+    data: VerifyNewUserRequest,
+    db: Session = Depends(get_db),
+):
+    try:
+        await VerifyNewUserService().verify(
+            background_tasks=background_tasks, data=data, db=db
+        )
+        response_content = BaseResponse(
+            successMessage=EMAIL_VERIFICATION_SUCCESS_MESSAGE, status_code=200
         )
         return JSONResponse(
             content=response_content.model_dump(),
