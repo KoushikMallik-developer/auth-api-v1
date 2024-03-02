@@ -1,3 +1,4 @@
+import json
 import os
 from typing import Union, Optional
 
@@ -19,6 +20,8 @@ class RedisCacheService:
         return self.client.get(key)
 
     def set(self, key: str, value: Union[str, dict], expire: int):
+        if isinstance(value, dict):
+            value = json.dumps(value)
         self.client.set(name=key, value=value, ex=expire)
 
     def close(self):

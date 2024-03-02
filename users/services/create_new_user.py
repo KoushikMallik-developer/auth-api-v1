@@ -6,6 +6,7 @@ from api_exceptions.user_exceptions import UserAlreadyExistsError
 from core.security import get_password_hash
 from datetime import datetime
 
+from core.services.database_services.database_service import DatabaseService
 from core.services.email_services.send_email_service import EmailService
 from core.services.redis_services.redis_service import RedisCacheService
 from core.services.verification_code_services.verification_code_generator import (
@@ -44,8 +45,8 @@ class CreateNewUserService:
     async def create_account(
         self, background_tasks: BackgroundTasks, data: CreateUserRequest, db
     ) -> UserModel:
-        user = db.query(UserModel).filter(UserModel.email == data.email).first()
-        if user:
+        db_service = DatabaseService(db=db)
+        if await db_service.does_user_exists(email=data.email):
             raise UserAlreadyExistsError()
         new_user = UserModel(
             first_name=data.first_name,
@@ -56,9 +57,7 @@ class CreateNewUserService:
             is_verified=False,
             updated_at=datetime.now(),
         )
-        db.add(new_user)
-        db.commit()
-        db.refresh(new_user)
+        await db_service.add_user(user=new_user)
         background_tasks.add_task(
             self.send_verification_email,
             new_user.email,
