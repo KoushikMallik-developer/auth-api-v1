@@ -6,6 +6,7 @@ from typing import Optional
 from api_exceptions.user_exceptions import (
     UserNotVerifiedError,
     UserAuthenticationFailedError,
+    UserNotFoundError,
 )
 from core.config import Settings
 from core.security import create_access_token, create_refresh_token, verify_password
@@ -33,6 +34,8 @@ class AccessTokenService:
                 return await self._get_user_token(user=user)
             else:
                 raise UserAuthenticationFailedError()
+        else:
+            raise UserNotFoundError()
 
     async def _get_user_token(
         self, user: UserModel, refresh_token: Optional[str] = None, cache: bool = True

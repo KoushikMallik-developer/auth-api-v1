@@ -9,8 +9,11 @@ class DatabaseService:
         self.client = db
 
     async def does_user_exists(self, email: EmailStr) -> bool:
-        if await self.get_user_with_email(email=email):
-            return True
+        try:
+            if await self.get_user_with_email(email=email):
+                return True
+        except UserNotFoundError:
+            return False
 
     async def get_user_with_email(self, email: EmailStr) -> UserModel:
         try:
@@ -31,3 +34,8 @@ class DatabaseService:
             self.client.refresh(user)
         except Exception as e:
             raise DatabaseError(e)
+
+    async def add_user(self, user: UserModel):
+        self.client.add(user)
+        self.client.commit()
+        self.client.refresh(user)
