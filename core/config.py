@@ -1,18 +1,42 @@
-from pathlib import Path
+import os
+from dotenv import load_dotenv
+from fastapi_mail import ConnectionConfig
 from pydantic_settings import BaseSettings
 
-# env_path = Path(".") / ".env"
+load_dotenv()
 
 
 class Settings(BaseSettings):
-    DATABASE_URL: str
+    DATABASE_URL: str = os.environ.get("DATABASE_URL")
 
     # JWT
-    JWT_SECRET: str = (
-        "709d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
-    )
-    JWT_ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    JWT_SECRET: str = os.environ.get("JWT_SECRET")
+    JWT_ALGORITHM: str = os.environ.get("JWT_ALGORITHM")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES")
 
-    class Config:
-        env_file = Path(".") / ".env"
+    # SMTP SETTINGS
+    MAIL_USERNAME: str = os.environ.get("MAIL_USERNAME")
+    MAIL_PASSWORD: str = os.environ.get("MAIL_PASSWORD")
+    MAIL_FROM: str = os.environ.get("MAIL_FROM")
+    MAIL_PORT: int = 587
+    MAIL_SERVER: str = "smtp.gmail.com"
+    MAIL_SSL_TLS: bool = False
+    MAIL_STARTTLS: bool = True
+    USE_CREDENTIALS: bool = True
+    VALIDATE_CERTS: bool = True
+
+
+class EmailConfig:
+    def get_config(self) -> ConnectionConfig:
+        settings = Settings()
+        return ConnectionConfig(
+            MAIL_USERNAME=settings.MAIL_USERNAME,
+            MAIL_PASSWORD=settings.MAIL_PASSWORD,
+            MAIL_FROM=f"{settings.MAIL_FROM} <{settings.MAIL_USERNAME}>",
+            MAIL_PORT=settings.MAIL_PORT,
+            MAIL_SERVER=settings.MAIL_SERVER,
+            MAIL_STARTTLS=settings.MAIL_STARTTLS,
+            MAIL_SSL_TLS=settings.MAIL_SSL_TLS,
+            USE_CREDENTIALS=settings.USE_CREDENTIALS,
+            VALIDATE_CERTS=settings.VALIDATE_CERTS,
+        )
