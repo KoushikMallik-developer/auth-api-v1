@@ -109,3 +109,33 @@ class UserAuthenticationFailedError(APIBaseException):
 
         super().__init__(self.name, self.detail, self.status)
         logging.error(self.detail)
+
+
+class VerificationCodeExpired(APIBaseException):
+    def __init__(self, name: Optional[str] = None, detail: Optional[str] = None):
+        self.status = 400
+        if name:
+            self.name = name
+        else:
+            self.name = "VerificationCodeExpired"
+        if detail:
+            self.detail = detail
+        else:
+            self.detail = "The verification code got expired. Please generate a new Verification Code."
+        super().__init__(self.name, self.detail, self.status)
+        logging.error(self.detail)
+
+
+class DatabaseError(APIBaseException):
+    def __init__(self, name: Optional[str] = None, detail: Optional[str] = None):
+        self.status = 500
+        if name:
+            self.name = name
+        else:
+            self.name = "DatabaseError"
+        if detail:
+            self.detail = detail
+        else:
+            self.detail = "Could not connect to database."
+        super().__init__(self.name, self.detail, self.status)
+        logging.error(self.detail)

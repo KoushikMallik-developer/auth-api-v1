@@ -7,6 +7,8 @@ from fastapi.responses import JSONResponse
 from core.db import Base, engine
 from users.routes import user_router
 
+Base.metadata.create_all(bind=engine)
+
 TRUTH_LIST = [True, "true", "True", 1, "1", "Yes", "Y", "yes", "y"]
 app = FastAPI(
     debug=True if os.environ.get("DEBUG_MODE") in TRUTH_LIST else False,
@@ -14,7 +16,6 @@ app = FastAPI(
     version="0.1.0",
 )
 app.include_router(router=user_router)
-Base.metadata.create_all(bind=engine)
 
 
 @app.get("/")
