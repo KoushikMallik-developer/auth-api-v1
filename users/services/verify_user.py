@@ -1,7 +1,4 @@
 import logging
-
-from fastapi import BackgroundTasks
-
 from api_exceptions.user_exceptions import (
     VerificationCodeExpired,
     OTPNotVerifiedError,
@@ -12,9 +9,7 @@ from users.schemas.verify_user import VerifyNewUserRequest
 
 
 class VerifyNewUserService:
-    async def verify(
-        self, data: VerifyNewUserRequest, background_tasks: BackgroundTasks, db
-    ):
+    async def verify(self, data: VerifyNewUserRequest, db):
         db_service = DatabaseService(db=db)
         if await db_service.does_user_exists(data.email):
             cache_key = f"USER_{data.email}_ACCOUNT_VERIFICATION"
